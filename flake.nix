@@ -1,15 +1,17 @@
 {
-  description = "A very basic flake";
+  description = "Nix flake configuration for kubernetes-csi-btrfs";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs }: {
-
-    packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
-
-    packages.x86_64-linux.default = self.packages.x86_64-linux.hello;
-
-  };
+  outputs = { self, nixpkgs, flake-utils }:
+    flake-utils.lib.eachDefaultSystem
+      (system:
+        let pkgs = nixpkgs.legacyPackages.${system}; in
+        {
+          devShells.default = import ./shell.nix { inherit pkgs; };
+        }
+      );
 }
